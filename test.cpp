@@ -1,62 +1,73 @@
-//
-// Created by vv123 on 2022/3/20.
-//
-#include <iostream>
-#include <string>
+#include <bits/stdc++.h>
+#define int long long
+using namespace std;
+const int N = 2e6 + 10;
 
-std::string name[5] = {"dragon", "ninja", "iceman", "lion", "wolf"};
-int cost[5];
-int mincost;
-int order[2][5] = {{2, 3, 4, 1, 0},
-                   {3, 0, 1, 2, 4}};
+struct PAM{
+    int next[N][26];
+    int fail[N];
+    int cnt[N];
+    int num[N];
+    int len[N];
+    int S[N];
+    int last;
+    int n;
+    int p;
 
-class Headquarters {
-public:
-    static int M;
-    int money, type, amount, runout, cnt[5];
-    std::string camp;
-    Headquarters(int Type): type(Type), money(M), amount(0), runout(0) {
-        camp = type == 0 ? "red" : "blue";
-        for (int i = 0; i < 5; i++) cnt[i] = 0;
+    int newnode(int l)
+    {
+        for(int i=0;i<26;++i) next[p][i]=0;
+        cnt[p]=0;
+        num[p]=0;
+        len[p]=l;
+        return p++;
     }
-    void work() {
-        std::cout << camp << " ";
-        if (money < mincost) {
-            runout = 1;
-            puts("headquarter stops making warriors");
-        } else {
-            for (int i = 0; i < 5; i++) {
-                int t = order[type][i];
-                if (cost[t] <= money) {
-                    amount++;
-                    cnt[t]++;
-                    printf("%s %d born with strength %d,%d %s in %s headquarter\n", name[t].c_str(), amount, cost[t], cnt[t], camp.c_str());
-                }
-            }
-        }
+
+    void Init()
+    {
+        p=0;
+        newnode(0);
+        newnode(-1);
+        last=0;
+        n=0;
+        S[n]=-1;
+        fail[0]=1;
     }
-};
 
-int main() {
-    int T;
-    std::cin >> T;
-    for (int k = 1; k <= T; k++) {
-        std::cout << "Case:" << k << std::endl;
-
-        std::cin >> Headquarters::M;
-        mincost = 10000;
-        for (int i = 0; i < 5; i++) {
-            std::cin >> cost[i];
-            mincost = std::min(mincost, cost[i]);
-        }
-
-        Headquarters red(0), blue(1);
-        for (int t = 0; !red.runout  || !blue.runout; t++) {
-            printf("%03d ", t);
-            if (!red.runout) red.work();
-            if (!blue.runout) blue.work();
-        }
+    int get_fail(int x)
+    {
+        while(S[n-len[x]-1]!=S[n]) x=fail[x] ;
+        return x ;
     }
-    return 0;
+
+    void add(int c)
+    {
+        S[++n]=c;
+        int cur=get_fail(last) ;
+        if(!next[cur][c])
+        {
+            int now=newnode(len[cur]+2) ;
+            fail[now]=next[get_fail(fail[cur])][c] ;
+            next[cur][c]=now ;
+            num[now]=num[fail[now]]+1;
+        }
+        last=next[cur][c];
+        cnt[last]++;
+    }
+
+    int count() {
+        int res=p*1ll;
+        for(int i=p-1;i>=0;--i) cnt[fail[i]]+=cnt[i];
+        return (res-2);//本质不同的回文串数量
+    }
+} pam;
+char str[N];
+signed main() {
+    freopen("data.txt", "r", stdin);
+    for (int i =1 ; i <= 10; i++) {
+        int x, y;
+        scanf("%d %d", &x, &y);
+        a[x][y] = 1;
+    }
+
 }
-
